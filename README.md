@@ -1,5 +1,5 @@
 # Emacs
-Configuration for development in C++
+Configuration for development in C/C++
 
 I recommend changing the purpose of the ctrl key to caps lock for convenient operation
 
