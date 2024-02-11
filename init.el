@@ -7,16 +7,30 @@
 (set-fringe-mode 0)              ;Border frame
 
 ;TABBBBBBBB
-(setq-default tab-width 4)
+(setq-default tab-width          4)
+(setq-default c-basic-offset     4)
+(setq-default standart-indent    4)
 (setq-default tab-always-indent t)
 (defun my-insert-tab-char ()
+
   "insert a tab char. (ASCII 9, \t)"
   (interactive)
   (insert "\t"))
 (global-set-key (kbd "TAB") 'my-insert-tab-char)
 
+;transparency
+(set-frame-parameter nil 'alpha-background 86)
+
 
 (global-display-line-numbers-mode) ;Line number mode
+
+;smooth scrolling
+(setq redisplay-dont-pause t
+	  scroll-margin 5
+	  scroll-step 1
+	  scroll-conservatively 10000
+	  scroll-preserve-screen-position 1)
+
 
 ;disable line numbers for some modes
 (dolist  (mode '(org-mode-hook
@@ -34,18 +48,19 @@
 (setq visible-bell t)
 
 ;Set default theme
-;doom-ir-black, doom-homage-black, 
-(load-theme 'doom-homage-black t)
+;doom-ir-black, doom-homage-black,
+(load-theme 'doom-ir-black t)
 
 
 ;global exit
-(global-set-key (kbd "<escape>") 'keyboard-escape-quit) 
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 ;; Initialize package sources
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 			 ("org" . "https://orgmode.org/elpa/")
 			 ("elpa" . "https://elpa.gnu.org/packages/")))
+
 (package-initialize)
 (unless package-archive-contents
 (package-refresh-contents))
@@ -112,15 +127,16 @@
 ;(use-package general
 ;	:config
 ;	(general-create-definer rune/leader-keys
-;   	:keymaps '(normal insert visual emacs)
-;   	:prefix "SPC"
-;   	:global-prefix "C-SPC")
+;  	:keymaps '(normal insert visual emacs)
+;  	:prefix "SPC"
+;  	:global-prefix "C-SPC")
 
 ;	(rune/leader-keys
 ;		"t" '(:ignore t :which-key "toggles")
 ;		"tt" '(counsel-load-theme :which-key "choose theme")))
 
 ;EVIL MODE
+
 (defun rune/evil-hook ()
   (dolist (mode '(custom-mode
 				  eshell-mode
@@ -143,6 +159,8 @@
   (evil-mode 1)
   (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state) ;fast exit in normal mode
   (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
 
   (define-key evil-insert-state-map (kbd "C-h") 'evil-delete-backward-char-and-join)
 
@@ -157,7 +175,7 @@
   :config
   (evil-collection-init))
 
-;managment project 
+;managment project
 (use-package projectile
   :diminish projectile-mode
   :config (projectile-mode)
@@ -175,7 +193,9 @@
 (use-package lsp-mode
   :ensure t
   :hook (c++-mode . lsp)
-  		(python-mode . lsp))
+ 	    (python-mode . lsp)
+  		(c-mode . lsp)
+		(nasm-mode . lsp))
 
 (use-package lsp-ui
   :ensure t
@@ -198,18 +218,46 @@
   :init (global-flycheck-mode))
 
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(blink-cursor-blinks 0)
- '(initial-scratch-message "")
- '(package-selected-packages
-   '(lsp-pyright flycheck company lsp-mode counsel-projectile evil-collection evil general doom-themes ivy-rich which-key rainbow-delimiters doom-modeline counsel ivy command-log-mode)))
+;GIT
+(use-package magit
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+;orgmode
+(defun dw/org-mode-setup ()
+	(org-indent-mode)
+	(variable-pitch-mode 1)
+	(auto-fill-mode 1)
+	(visual-line-mode 1)
+	(setq evil-auto-indent nil))
+
+(use-package org
+  :hook (org-mode . dw/org-mode-setup)
+  :config
+  (setq org-ellipsis " ^"
+		org-hide-emphasis-markers t))
+(use-package evil-tabs)
+(global-evil-tabs-mode t)
+
+;; АВТОЗАКРЫТИЕ!!!!!!!!!!!!!!!
+(electric-pair-mode    1)
+(electric-indent-mode -1)
+(setq electric-pair-pairs '(
+                                (?\" . ?\")
+                                (?\{ . ?\})
+                                (?\< . ?\>)
+                            ) )
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(evil-tabs which-key wfnames request rainbow-delimiters popup nasm-mode magit lsp-ui lsp-pyright ivy-rich hydra general flycheck evil-collection doom-themes doom-modeline counsel-projectile company async all-the-icons-dired)))
