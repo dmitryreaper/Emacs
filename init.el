@@ -7,6 +7,40 @@
 
 
 (set-face-attribute 'default nil :font "Hack Nerd Font-11")
+
+;;transparent
+(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
+(add-to-list 'default-frame-alist '(alpha . (90 . 50)))
+
+;;auto skeleton
+(setq skeleton-pair t)
+(global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
+(global-set-key (kbd "<") 'skeleton-pair-insert-maybe)
+(global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
+
+;;автозакрытие
+(electric-pair-mode    1) ;; автозакрытие {},[],() с переводом курсора внутрь скобок
+(electric-indent-mode -1) ;; отключить индентацию  electric-indent-mod'ом (default in Emacs-24.4)
+(setq electric-pair-pairs '(
+                                (?\{ . ?\})
+                                (?\( . ?\))
+				(?\[ . ?\])
+                            ))
+;;PDF VIEW FILE
+(use-package pdf-tools
+  :defer t
+  :commands (pdf-loader-install)
+  :mode "'\\.pdf\\'"
+  :bind (:map pdf-view-mode-map
+	      ("j" . pdf-view-next-line-or-next-page)
+	      ("k" . pdf-view-previous-line-or-previous-page)
+	      ("C-=" . pdf-view-enlarge)
+	      ("C--" . pdf-view-shrink)) 			
+
+  :init (pdf-loader-install)
+  :config (add-to-list 'revert-without-query ".pdf"))
+
+(add-hook 'pdf-view-mode-hook #'(lambda ()(interactive) (display-line-numbers-mode -1)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;evil mode
 (use-package evil
