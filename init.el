@@ -5,26 +5,30 @@
 ;;(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
 (package-initialize)
 
+;;COLORS
+(set-frame-parameter nil 'cursor-color "#ff0000")
+(add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
 
+;;FONT
 (set-face-attribute 'default nil :font "Hack Nerd Font-11")
 
-;;transparent
-(set-frame-parameter (selected-frame) 'alpha '(90 . 50))
-(add-to-list 'default-frame-alist '(alpha . (90 . 50)))
+;;TRANSPARENT
+(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
+(add-to-list 'default-frame-alist '(alpha . (85 . 50)))
 
-;;auto skeleton
+;;AUTO SKELETON
 (setq skeleton-pair t)
 (global-set-key (kbd "\"") 'skeleton-pair-insert-maybe)
-(global-set-key (kbd "<") 'skeleton-pair-insert-maybe)
 (global-set-key (kbd "'") 'skeleton-pair-insert-maybe)
 
-;;автозакрытие
+;;AUTO CLOSE
 (electric-pair-mode    1) ;; автозакрытие {},[],() с переводом курсора внутрь скобок
 (electric-indent-mode -1) ;; отключить индентацию  electric-indent-mod'ом (default in Emacs-24.4)
 (setq electric-pair-pairs '(
                                 (?\{ . ?\})
                                 (?\( . ?\))
 				(?\[ . ?\])
+				(?\< . ?\>)
                             ))
 ;;PDF VIEW FILE
 (use-package pdf-tools
@@ -41,6 +45,7 @@
   :config (add-to-list 'revert-without-query ".pdf"))
 
 (add-hook 'pdf-view-mode-hook #'(lambda ()(interactive) (display-line-numbers-mode -1)))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;evil mode
 (use-package evil
@@ -88,13 +93,21 @@
   ;; so we can switch away
   (define-key ivy-minibuffer-map (kbd "C-w") 'evil-window-map))
 
+;;LSP SERVERS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
+;;c/C++ MODE
 (use-package lsp-mode
   :ensure t
   :hook (c++-mode . lsp)
         (c-mode . lsp))
 
+;;python
+(use-package lsp-pyright
+  :ensure t
+  :hook (python-mode . (lambda ()
+                          (require 'lsp-pyright)
+                          (lsp))))  ; or lsp-deferred
+;;UI LSP WIH CURSOR
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
@@ -325,13 +338,12 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(blink-cursor-blinks 0)
- '(custom-enabled-themes '(doom-1337))
+ '(custom-enabled-themes '(doom-ir-black))
  '(custom-safe-themes
-   '("014cb63097fc7dbda3edf53eb09802237961cbb4c9e9abd705f23b86511b0a69" "f4d1b183465f2d29b7a2e9dbe87ccc20598e79738e5d29fc52ec8fb8c576fcfd" "aec7b55f2a13307a55517fdf08438863d694550565dee23181d2ebd973ebd6b8" default))
- '(line-number-mode t)
+   '("f4d1b183465f2d29b7a2e9dbe87ccc20598e79738e5d29fc52ec8fb8c576fcfd" default))
  '(menu-bar-mode nil)
  '(package-selected-packages
-   '(doom-modeline god-mode ivy flycheck company vertico use-package consult lsp-ui lsp-mode evil doom-themes))
+   '(python-mode evil-org pdf-tools doom-modeline god-mode ivy flycheck company vertico use-package consult lsp-ui lsp-mode evil doom-themes))
  '(scroll-bar-mode nil)
  '(tab-bar-mode t)
  '(tool-bar-mode nil))
