@@ -1,7 +1,3 @@
----
-title: Emacs configuraion
----
-
 # Emacs
 
 ## Package setup
