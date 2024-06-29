@@ -524,8 +524,7 @@ Emacs. Это многофункциональный редактор докум
 [org-bullets](https://github.com/sabof/org-bullets) заменяет звездочки
 заголовка в `org-mode`{.verbatim} буферах на более привлекательные
 символы, которыми вы можете управлять. Другой вариант для этого -
-[org-superstar-mode](https://github.com/integral-dw/org-superstar-mode),
-который мы, возможно, рассмотрим в следующем видео.
+[org-superstar-mode](https://github.com/integral-dw/org-superstar-mode)
 
 ``` {.commonlisp org-language="emacs-lisp"}
 (use-package org-bullets
