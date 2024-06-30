@@ -1,5 +1,5 @@
 
-# Table of Contents
+# My configuration emacs
 
 1.  [Emacs](#orgae155a1)
     1.  [Package setup](#org422c7eb)
