@@ -20,6 +20,10 @@
 
   (setq blink-cursor-blinks 0)
 
+;; tabs
+(setq-default tab-width          4)
+(setq-default c-basic-offset     4)
+(setq-default standart-indent    4)
 
   (menu-bar-mode -1)            ; Disable the menu bar
 
@@ -330,21 +334,37 @@
 
     (efs/org-font-setup))
 
-;; NICER HEADING BULLETS
 (use-package org-bullets
     :hook (org-mode . org-bullets-mode)
     :custom
     (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
 
-;;CENTER ORG BUFFER
-(defun efs/org-mode-visual-fill ()
-    (setq visual-fill-column-width 100
-          visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
+;;configure babel languages
+(with-eval-after-load 'org
+    (org-babel-do-load-languages
+        'org-babel-load-languages
+        '((emacs-lisp . t)
+        (python . t)))
+    (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
-  (use-package visual-fill-column
-    :hook (org-mode . efs/org-mode-visual-fill))
+;;structure templates
+(with-eval-after-load 'org
+    ;; This is needed as of Org 9.2
+    (require 'org-tempo)
 
+    (add-to-list 'org-structure-template-alist '("sh" . "src shell"))
+    (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+    (add-to-list 'org-structure-template-alist '("py" . "src python")))
+
+;; Automatically tangle our Emacs.org config file when we save it
+  (defun efs/org-babel-tangle-config ()
+    (when (string-equal (file-name-directory (buffer-file-name))
+                        (expand-file-name user-emacs-directory))
+      ;; Dynamic scoping to the rescue
+      (let ((org-confirm-babel-evaluate nil))
+        (org-babel-tangle))))
+
+  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
@@ -353,10 +373,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(visual-fill-column org-bullets helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy pdf-tools doom-modeline all-the-icons doom-themes evil-collection evil)))
+   '(auto-org-md visual-fill-column org-bullets helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy pdf-tools doom-modeline all-the-icons doom-themes evil-collection evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+)
+(put 'upcase-region 'disabled nil)
