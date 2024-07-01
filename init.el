@@ -103,22 +103,6 @@
                                 (?\( . ?\))
 				(?\[ . ?\])
                             ))
-;;PDF VIEW FILE
-(use-package pdf-tools
-  :defer t
-  :commands (pdf-loader-install)
-  :mode "'\\.pdf\\'"
-  :bind (:map pdf-view-mode-map
-	      ("j" . pdf-view-next-line-or-next-page)
-	      ("k" . pdf-view-previous-line-or-previous-page)
-	      ("C-=" . pdf-view-enlarge)
-	      ("C--" . pdf-view-shrink)) 			
-
-  :init (pdf-loader-install)
-  :config (add-to-list 'revert-without-query ".pdf"))
-
-(add-hook 'pdf-view-mode-hook #'(lambda ()(interactive) (display-line-numbers-mode -1)))
-
 ;;Ivy and Counsel
 (use-package ivy
     :diminish
@@ -365,6 +349,20 @@
         (org-babel-tangle))))
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+
+;; git
+(use-package magit
+    :commands magit-status
+    :custom
+    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+
+  ;; NOTE: Make sure to configure a GitHub token before using this package!
+  ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+  (use-package forge
+    :after magit)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
@@ -373,11 +371,11 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(auto-org-md visual-fill-column org-bullets helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy pdf-tools doom-modeline all-the-icons doom-themes evil-collection evil)))
+   '(forge auto-org-md visual-fill-column org-bullets helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy doom-modeline all-the-icons doom-themes evil-collection evil)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
 (put 'upcase-region 'disabled nil)
