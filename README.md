@@ -1,40 +1,41 @@
 
-# My configuration emacs
+# Table of Contents
 
-1.  [Emacs](#orgae155a1)
-    1.  [Package setup](#org422c7eb)
-    2.  [Basic UI configurationl](#orgdd9d9f5)
-    3.  [Font configuration](#org0d3b94d)
-    4.  [Keybinding Configuration](#org21fb71f)
-    5.  [UI configuration](#orgab939e1)
-        1.  [Color Theme](#org54b0bdf)
-        2.  [Better Modeline](#orgc98c311)
-        3.  [Auto-completion of brackets, quotes](#org261bc27)
-        4.  [PDF](#orga7db8b4)
-        5.  [Ivy and Counsel](#org181d6ab)
-    6.  [Helpful help commands](#org5490850)
-    7.  [Languages](#org563405c)
-        1.  [lsp-mode](#org9459c87)
-        2.  [lsp-ui](#org46837aa)
-        3.  [Debugging with dap-mode](#orga36c338)
-        4.  [flycheck](#orgb1df27f)
-        5.  [Improved candidate sorting with prescient.el](#orgb0b10f6)
-2.  [ORG MODE](#orgf7296a9)
-    1.  [Better Fonts Faces](#org0b4640c)
-    2.  [Basic Config](#orgf0d04bf)
-    3.  [Nicer Heading Bullets](#orga54265c)
-    4.  [Configure Babel Languages](#org82226ef)
-    5.  [Structure Templates](#org265356d)
-    6.  [Auto-tangle Configuration Files](#orgbb9f283)
+1.  [Emacs](#org1a48a4b)
+    1.  [Package setup](#org67004eb)
+    2.  [Basic UI configurationl](#orgd7e6540)
+    3.  [Font configuration](#orgb9c3549)
+    4.  [Keybinding Configuration](#org26acf92)
+    5.  [UI configuration](#orgd35c2d8)
+        1.  [Color Theme](#org40a9f00)
+        2.  [Better Modeline](#org4d28cc9)
+        3.  [Auto-completion of brackets, quotes](#orge3ae0d3)
+        4.  [PDF](#orge64d2cc)
+        5.  [Ivy and Counsel](#org704c739)
+    6.  [Helpful help commands](#org2e565d6)
+    7.  [Languages](#org1c25bff)
+        1.  [lsp-mode](#org8b9b36c)
+        2.  [lsp-ui](#orgc57db3a)
+        3.  [Debugging with dap-mode](#org1ed7457)
+        4.  [flycheck](#org3de774a)
+        5.  [Improved candidate sorting with prescient.el](#orgd2c944e)
+2.  [ORG MODE](#org7c3821a)
+    1.  [Better Fonts Faces](#org2e21ff7)
+    2.  [Basic Config](#orgb6c04aa)
+    3.  [Nicer Heading Bullets](#org70c3473)
+    4.  [Configure Babel Languages](#orgf0390c2)
+    5.  [Structure Templates](#org1623875)
+    6.  [Auto-tangle Configuration Files](#orga4397b0)
+    7.  [Magit](#org206b4a8)
 
 
 
-<a id="orgae155a1"></a>
+<a id="org1a48a4b"></a>
 
 # Emacs
 
 
-<a id="org422c7eb"></a>
+<a id="org67004eb"></a>
 
 ## Package setup
 
@@ -53,7 +54,7 @@
     (setq use-package-always-ensure t)
 
 
-<a id="orgdd9d9f5"></a>
+<a id="orgd7e6540"></a>
 
 ## Basic UI configurationl
 
@@ -94,7 +95,7 @@
         (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 
-<a id="org0d3b94d"></a>
+<a id="orgb9c3549"></a>
 
 ## Font configuration
 
@@ -104,7 +105,7 @@
     (set-face-attribute 'default nil :font "Hack Nerd Font-11")
 
 
-<a id="org21fb71f"></a>
+<a id="org26acf92"></a>
 
 ## Keybinding Configuration
 
@@ -137,12 +138,12 @@
         (evil-collection-init))
 
 
-<a id="orgab939e1"></a>
+<a id="orgd35c2d8"></a>
 
 ## UI configuration
 
 
-<a id="org54b0bdf"></a>
+<a id="org40a9f00"></a>
 
 ### Color Theme
 
@@ -153,7 +154,7 @@
       :init (load-theme 'doom-ir-black t))
 
 
-<a id="orgc98c311"></a>
+<a id="org4d28cc9"></a>
 
 ### Better Modeline
 
@@ -169,7 +170,7 @@
       :custom ((doom-modeline-height 15)))
 
 
-<a id="org261bc27"></a>
+<a id="orge3ae0d3"></a>
 
 ### Auto-completion of brackets, quotes
 
@@ -190,7 +191,7 @@
                                 ))
 
 
-<a id="orga7db8b4"></a>
+<a id="orge64d2cc"></a>
 
 ### PDF
 
@@ -213,7 +214,7 @@
     (add-hook 'pdf-view-mode-hook #'(lambda ()(interactive) (display-line-numbers-mode -1)))
 
 
-<a id="org181d6ab"></a>
+<a id="org704c739"></a>
 
 ### Ivy and Counsel
 
@@ -255,7 +256,7 @@
         (counsel-mode 1))
 
 
-<a id="org5490850"></a>
+<a id="org2e565d6"></a>
 
 ## Helpful help commands
 
@@ -273,12 +274,12 @@
         ([remap describe-key] . helpful-key))
 
 
-<a id="org563405c"></a>
+<a id="org1c25bff"></a>
 
 ## Languages
 
 
-<a id="org9459c87"></a>
+<a id="org8b9b36c"></a>
 
 ### lsp-mode
 
@@ -301,7 +302,7 @@
                               (lsp))))  ; or lsp-deferred
 
 
-<a id="org46837aa"></a>
+<a id="orgc57db3a"></a>
 
 ### lsp-ui
 
@@ -314,7 +315,7 @@
       (lsp-ui-doc-show-with-cursor t))
 
 
-<a id="orga36c338"></a>
+<a id="org1ed7457"></a>
 
 ### Debugging with dap-mode
 
@@ -340,7 +341,7 @@
         "d" '(dap-hydra t :wk "debugger")))
 
 
-<a id="orgb1df27f"></a>
+<a id="org3de774a"></a>
 
 ### flycheck
 
@@ -352,7 +353,7 @@
       :init (global-flycheck-mode))
 
 
-<a id="orgb0b10f6"></a>
+<a id="orgd2c944e"></a>
 
 ### Improved candidate sorting with prescient.el
 
@@ -368,14 +369,14 @@ prescient.el предоставляет некоторые полезные фу
         (ivy-prescient-mode 1))
 
 
-<a id="orgf7296a9"></a>
+<a id="org7c3821a"></a>
 
 # ORG MODE
 
 [Org Mode](https://orgmode.org/) - одна из отличительных особенностей Emacs.  Это многофункциональный редактор документов, планировщик проектов, отслеживание задач и времени, механизм ведения блогов и утилита для грамотного программирования, объединенные в одном пакете.
 
 
-<a id="org0b4640c"></a>
+<a id="org2e21ff7"></a>
 
 ## Better Fonts Faces
 
@@ -412,7 +413,7 @@ prescient.el предоставляет некоторые полезные фу
         (set-face-attribute 'line-number-current-line nil :inherit 'fixed-pitch))
 
 
-<a id="orgf0d04bf"></a>
+<a id="orgb6c04aa"></a>
 
 ## Basic Config
 
@@ -517,7 +518,7 @@ prescient.el предоставляет некоторые полезные фу
         (efs/org-font-setup))
 
 
-<a id="orga54265c"></a>
+<a id="org70c3473"></a>
 
 ## Nicer Heading Bullets
 
@@ -538,7 +539,7 @@ prescient.el предоставляет некоторые полезные фу
         :hook (org-mode . efs/org-mode-visual-fill))
 
 
-<a id="org82226ef"></a>
+<a id="orgf0390c2"></a>
 
 ## Configure Babel Languages
 
@@ -554,13 +555,13 @@ prescient.el предоставляет некоторые полезные фу
       (push '("conf-unix" . conf-unix) org-src-lang-modes))
 
 
-<a id="org265356d"></a>
+<a id="org1623875"></a>
 
 ## Structure Templates
 
-Функция [шаблоны структуры](<https://orgmode.org/manual/Structure-Templates.html>) в режиме организации позволяет быстро вставлять блоки кода в ваши файлы организации в сочетании с `org-tempo`, набрав `<`, за которым следует название шаблона, например `el` или `py`, а затем нажмите `TAB`.  Например, чтобы вставить пустой блок `emacs-lisp` ниже, вы можете ввести `<el` и нажать `TAB`, чтобы развернуть его в такой блок.
+Функция [[<https://orgmode.org/manual/Structure-Templates.html>][шаблоны структуры] в режиме организации позволяет быстро вставлять блоки кода в ваши файлы организации в сочетании с `org-tempo`, набрав `<`, за которым следует название шаблона, например `el` или `py`, а затем нажмите `TAB`.  Например, чтобы вставить пустой блок `emacs-lisp` ниже, вы можете ввести `<el` и нажать `TAB`, чтобы развернуть его в такой блок.
 
-Вы можете добавить дополнительные шаблоны блоков, приведенные ниже, скопировав одну из строк и изменив две строки в конце, чтобы первая была названием шаблона, а вторая содержала название языка [как он известен в организации Babel](<https://orgmode.org/worg/org-contrib/babel/languages.html>).
+Вы можете добавить дополнительные шаблоны блоков, приведенные ниже, скопировав одну из строк и изменив две строки в конце, чтобы первая была названием шаблона, а вторая содержала название языка [[<https://orgmode.org/worg/org-contrib/babel/languages.html>] [как он известен в организации Babel]].
 
     
     (with-eval-after-load 'org
@@ -572,7 +573,7 @@ prescient.el предоставляет некоторые полезные фу
       (add-to-list 'org-structure-template-alist '("py" . "src python")))
 
 
-<a id="orgbb9f283"></a>
+<a id="orga4397b0"></a>
 
 ## Auto-tangle Configuration Files
 
@@ -588,4 +589,23 @@ prescient.el предоставляет некоторые полезные фу
           (org-babel-tangle))))
     
     (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+
+<a id="org206b4a8"></a>
+
+## Magit
+
+[Magit](https://magit.vc/) - лучший интерфейс Git, который я когда-либо использовал.  Обычные операции с Git легко и быстро выполняются с помощью системы командной панели Magit.
+
+    
+    (use-package magit
+      :commands magit-status
+      :custom
+      (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+    
+    ;; NOTE: Make sure to configure a GitHub token before using this package!
+    ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+    ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+    (use-package forge
+      :after magit)
 
