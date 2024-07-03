@@ -12,15 +12,33 @@
 (load-theme 'doom-ir-black t)
 
 (put 'customize-themes 'disabled nil)
+
+(use-package lsp-mode
+  :ensure t
+  :hook (c++-mode . lsp)
+        (c-mode . lsp))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode
+  :custom
+  (lsp-ui-doc-show-with-cursor t))
+
+(use-package flycheck
+  :ensure t
+  :init (global-flycheck-mode))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(blink-cursor-blinks 0)
+ '(blink-cursor-mode t)
  '(package-selected-packages '(lsp-pyright)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
