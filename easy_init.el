@@ -35,3 +35,13 @@
 ;;cursor color
 (set-frame-parameter nil 'cursor-color "#ff0000")
 (add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
+
+;;evil-mode for vim layout
+(use-package evil
+  :ensure t
+  :init (evil-mode 1)
+  :config
+  (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state))
