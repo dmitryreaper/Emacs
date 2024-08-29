@@ -6,6 +6,9 @@
 ;;maximize screen
 ;;(add-hook 'window-setup-hook 'toggle-frame-maximized t)
 
+;;start buffer
+(setq initial-scratch-message "")
+
 ;;default directory
 (setq default-directory "~/") 
 
@@ -35,59 +38,75 @@
 ;;(use-package doom-themes
 ;;  :init (load-theme 'doom-ir-black t))
 
-;; config exwm
-
 (use-package exwm
-  :config
-  ;; Set the default number of workspaces
-  (setq exwm-workspace-number 5)
+  :ensure t)
 
-  ;; Set up global key bindings.  These always work, no matter the input state!
-  ;; Keep in mind that changing this list after EXWM initializes has no effect.
-  (setq exwm-input-global-keys
-        `(
-          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
-          ([?\s-r] . exwm-reset)
+(require 'exwm)
+;; Set the initial workspace number.
+(setq exwm-workspace-number 4)
+;; Make class name the buffer name.
+(add-hook 'exwm-update-class-hook
+  (lambda () (exwm-workspace-rename-buffer exwm-class-name)))
+;; Global keybindings.
+(setq exwm-input-global-keys
+      `(([?\s-r] . exwm-reset) ;; s-r: Reset (to line-mode).
+        ([?\s-w] . exwm-workspace-switch) ;; s-w: Switch workspace.
+        ;; s-N: Switch to certain workspace.
+        ,@(mapcar (lambda (i)
+                    `(,(kbd (format "s-%d" i)) .
+                      (lambda ()
+                        (interactive)
+                        (exwm-workspace-switch-create ,i))))
+                  (number-sequence 0 9))))
+;; my shortcut 
+(exwm-input-set-key (kbd "C-s-<return>") '(lambda (cmd)
+   (interactive (list (read-shell-command "$ ")))
+   (start-process-shell-command cmd nil cmd)))
 
-          ;; Move between windows
-          ([?\s-h] . windmove-left)
-          ([?\s-l] . windmove-right)
-          ([?\s-k] . windmove-up)
-          ([?\s-j] . windmove-down)
+(exwm-input-set-key (kbd "s-<return>") '(lambda ()
+   (interactive)
+   (start-process-shell-command "urxvt" nil "urxvt")))
 
-          ;; Launch applications via shell command
-          ([?\s-&] . (lambda (command)
-                       (interactive (list (read-shell-command "$ ")))
-                       (start-process-shell-command command nil command)))
+(exwm-input-set-key (kbd "<print>") '(lambda ()
+   (interactive)
+   (start-process-shell-command "flameshot" nil "flameshot gui")))
 
-          ;; Switch workspace
-          ([?\s-w] . exwm-workspace-switch)
-          ([?\s-`] . (lambda () (interactive) (exwm-workspace-switch-create 0)))
 
-          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-          ,@(mapcar (lambda (i)
-                      `(,(kbd (format "s-%d" i)) .
-                        (lambda ()
-                          (interactive)
-                          (exwm-workspace-switch-create ,i))))
-                    (number-sequence 0 9))))
-
-  (exwm-input-set-key (kbd "C-s-<return>") 'counsel-linux-app)
-  (exwm-input-set-key (kbd "s-<return>") 'eshell)
-  
-  (exwm-enable))
-
+;; enable EXWM
+(exwm-enable)
 
 ;; configuration for ivy
 (use-package ivy
     :diminish
-    :bind (("C-s" . swiper)))
+    :bind (("C-s" . swiper)
+           :map ivy-minibuffer-map
+           ("TAB" . ivy-alt-done)
+           ("C-l" . ivy-alt-done)
+           ("C-j" . ivy-next-line)
+           ("C-k" . ivy-previous-line)
+           :map ivy-switch-buffer-map
+           ("C-k" . ivy-previous-line)
+           ("C-l" . ivy-done)
+           ("C-d" . ivy-switch-buffer-kill)
+           :map ivy-reverse-i-search-map
+           ("C-k" . ivy-previous-line)
+           ("C-d" . ivy-reverse-i-search-kill))
+    :config
+    (ivy-mode 1))
 
-(use-package counsel
-  :ensure t
-  :after ivy)
+  (use-package ivy-rich
+    :after ivy
+    :init
+    (ivy-rich-mode 1))
 
-(counsel-mode 1)
+  (use-package counsel
+    :bind (("C-M-j" . 'counsel-switch-buffer)
+           :map minibuffer-local-map
+           ("C-r" . 'counsel-minibuffer-history))
+    :custom
+    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+
+    (counsel-mode 1))
 
 ;; mode line
 (display-battery-mode 1)
@@ -98,8 +117,8 @@
 (electric-pair-mode 1)
 
 ;; transparent
-(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
-(add-to-list 'default-frame-alist '(alpha . (85 .50)))
+;;(set-frame-parameter (selected-frame) 'alpha '(85 . 50))
+(add-to-list 'default-frame-alist '(alpha-background . 80))
 
 ;; dired icon
 (add-hook 'dired-mode-hook 'dired-icon-mode)
@@ -109,14 +128,14 @@
 ;;(add-to-list 'default-frame-alist '(cursor-color . "#ff0000"))
 
 ;;evil-mode for vim layout
-;;(use-package evil
-;;:ensure t
-;;  :init (evil-mode 1)
-;;:config
-;;  (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state)
-;;  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
-;;  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
-;;  (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state))
+(use-package evil
+  :ensure t
+  :init (evil-mode 1)
+  :config
+  (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -125,7 +144,7 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(modus-vivendi))
  '(package-selected-packages
-   '(dired-icon counsel exwm-modeline exwm graphql-mode haskell-mode ivy swiper ivy-rich ivy-avy use-package)))
+   '(evil dired-icon counsel exwm-modeline exwm graphql-mode haskell-mode ivy swiper ivy-rich ivy-avy use-package)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
