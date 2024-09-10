@@ -82,9 +82,6 @@
 (set-frame-parameter (selected-frame) 'alpha '(85 . 50))
 (add-to-list 'default-frame-alist '(alpha . (85 . 50)))
 
-;;set cursor color
-(set-frame-parameter nil 'cursor-color "#ff0000")
-
 ;;swiper
 (use-package! ivy
     :diminish
@@ -104,12 +101,13 @@
     :config
     (ivy-mode 1))
 
+;; LSP
 (use-package! lsp-mode
   :init
   (setq lsp-auto-guess-root nil)
   :hook (java-mode . lsp)
         (c++-mode . lsp)
-        (python-mode .lsp)
+        (python-mode . lsp)
         (csharp-mode . lsp)
         (lsp-mode . lsp-enable-which-key-integration)
 
@@ -145,7 +143,7 @@
     (evil-set-initial-state 'messages-buffer-mode 'normal)
     (evil-set-initial-state 'dashboard-mode 'normal))
 
-  (use-package! evil-collection
+(use-package! evil-collection
     :after evil
     :config
     (evil-collection-init))
