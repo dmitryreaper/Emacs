@@ -37,6 +37,7 @@
   (set-frame-parameter nil 'cursor-color "#ffffff")
   (add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))  ;; Disable line numbers for some modes
 
+
   (dolist (mode '(org-mode-hook
                   term-mode-hook
                   shell-mode-hook
@@ -45,7 +46,7 @@
     (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;FONT
-(set-face-attribute 'default nil :font "terminus-11")
+(set-face-attribute 'default nil :font "terminus-14")
 
 ;;set "gnu" style for c
 (setq c-deafault-style "linux"
@@ -94,8 +95,10 @@
 ;;c/C++ MODE
 (use-package lsp-mode
   :ensure t
-  :hook (c++-mode . lsp)
-        (c-mode . lsp))
+  :hook
+  (c++-mode . lsp)
+  (java-mode . lsp)
+  (c-mode . lsp))
 
 ;;python
 (use-package lsp-pyright
@@ -114,6 +117,7 @@
   :ensure t
   :init (global-flycheck-mode))
 
+(add-hook 'after-init-hook 'global-company-mode)
 
 ;;IMPROVED CANDIDATE SORTING WITH PRESCIENT.EL 
 (use-package ivy-prescient
@@ -154,8 +158,12 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-enabled-themes '(gruber-darker))
+ '(custom-safe-themes
+   '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
+ '(initial-scratch-message nil)
  '(package-selected-packages
-   '(forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
+   '(gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
