@@ -1,11 +1,11 @@
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-				 ("org" . "https://orgmode.org/elpa/")
-				 ("elpa" . "https://elpa.gnu.org/packages/")))  
+						 ("org" . "https://orgmode.org/elpa/")
+						 ("elpa" . "https://elpa.gnu.org/packages/")))  
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
+  (package-install 'use-package))
 
 (require 'use-package)
 (setq use-package-always-ensure t)
@@ -13,37 +13,37 @@
 ;;BASIC UI CONFIGURATION
 (setq inhibit-startup-message t)
 
-  (scroll-bar-mode -1)        ; Disable visible scrollbar
-  (tool-bar-mode -1)          ; Disable the toolbar
-  (tooltip-mode -1)           ; Disable tooltips
-  (set-fringe-mode 10)        ; Give some breathing room
+(scroll-bar-mode -1)        ; Disable visible scrollbar
+(tool-bar-mode -1)          ; Disable the toolbar
+(tooltip-mode -1)           ; Disable tooltips
+(set-fringe-mode 10)        ; Give some breathing room
 
-  (setq blink-cursor-blinks 0)
+(setq blink-cursor-blinks 0)
 
 ;; tabs
 (setq-default tab-width          4)
 (setq-default c-basic-offset     4)
 (setq-default standart-indent    4)
 
-  (menu-bar-mode -1)            ; Disable the menu bar
+(menu-bar-mode -1)            ; Disable the menu bar
 
-  ;; Set up the visible bell
-  (setq visible-bell t)
+;; Set up the visible bell
+(setq visible-bell t)
 
-  (column-number-mode)
-  (global-display-line-numbers-mode t)
+(column-number-mode)
+(global-display-line-numbers-mode t)
 
-  ;;colors CURSOR
-  (set-frame-parameter nil 'cursor-color "#ffffff")
-  (add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))  ;; Disable line numbers for some modes
+;;colors CURSOR
+(set-frame-parameter nil 'cursor-color "#ffffff")
+(add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))  ;; Disable line numbers for some modes
 
 
-  (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  shell-mode-hook
-                  treemacs-mode-hook
-                  eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                treemacs-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;FONT
 (set-face-attribute 'default nil :font "terminus-14")
@@ -57,36 +57,36 @@
 
 ;;Ivy and Counsel
 (use-package ivy
-    :diminish
-    :bind (("C-s" . swiper)
-           :map ivy-minibuffer-map
-           ("TAB" . ivy-alt-done)
-           ("C-l" . ivy-alt-done)
-           ("C-j" . ivy-next-line)
-           ("C-k" . ivy-previous-line)
-           :map ivy-switch-buffer-map
-           ("C-k" . ivy-previous-line)
-           ("C-l" . ivy-done)
-           ("C-d" . ivy-switch-buffer-kill)
-           :map ivy-reverse-i-search-map
-           ("C-k" . ivy-previous-line)
-           ("C-d" . ivy-reverse-i-search-kill))
-    :config
-    (ivy-mode 1))
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
 
-  (use-package ivy-rich
-    :after ivy
-    :init
-    (ivy-rich-mode 1))
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
 
-  (use-package counsel
-    :bind (("C-M-j" . 'counsel-switch-buffer)
-           :map minibuffer-local-map
-           ("C-r" . 'counsel-minibuffer-history))
-    :custom
-    (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-    :config
-    (counsel-mode 1))
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -104,8 +104,8 @@
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
-                          (require 'lsp-pyright)
-                          (lsp))))  ; or lsp-deferred
+                         (require 'lsp-pyright)
+                         (lsp))))  ; or lsp-deferred
 ;;UI LSP WIH CURSOR
 (use-package lsp-ui
   :ensure t
@@ -121,38 +121,44 @@
 
 ;;IMPROVED CANDIDATE SORTING WITH PRESCIENT.EL 
 (use-package ivy-prescient
-    :after counsel
-    :custom
-    (ivy-prescient-enable-filtering nil)
-    :config
-    ;; Uncomment the following line to have sorting remembered across sessions!
-    ;(prescient-persist-mode 1)
-    (ivy-prescient-mode 1))
+  :after counsel
+  :custom
+  (ivy-prescient-enable-filtering nil)
+  :config
+  ;; Uncomment the following line to have sorting remembered across sessions!
+										;(prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
 
 ;;HELPFUL HELP COMMANDS
 (use-package helpful
-    :commands (helpful-callable helpful-variable helpful-command helpful-key)
-    :custom
-    (counsel-describe-function-function #'helpful-callable)
-    (counsel-describe-variable-function #'helpful-variable)
-    :bind
-    ([remap describe-function] . counsel-describe-function)
-    ([remap describe-command] . helpful-command)
-    ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . helpful-key))
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :custom
+  (counsel-describe-function-function #'helpful-callable)
+  (counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-key] . helpful-key))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; git
 (use-package magit
-    :commands magit-status
-    :custom
-    (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
+  :commands magit-status
+  :custom
+  (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-  ;; NOTE: Make sure to configure a GitHub token before using this package!
-  ;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-  ;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
-  (use-package forge
-    :after magit)
+;; NOTE: Make sure to configure a GitHub token before using this package!
+;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
+;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
+(use-package forge
+  :after magit)
+
+;;;;;;;;;ORGmode;;;;;;;;;;;
+(setq org-directory "~/Docs/org")
+(setq org-agenda-files (directory-files-recursively org-directory "\\.org$"))
+(keymap-global-set "C-c a" 'org-agenda)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -163,7 +169,7 @@
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(initial-scratch-message nil)
  '(package-selected-packages
-   '(gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
+   '(org-tempo gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
