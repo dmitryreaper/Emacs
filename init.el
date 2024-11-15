@@ -2,6 +2,9 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")))  
+(add-to-list 'load-path "~/.emacs.d/ergoemacs-mode")
+(require 'ergoemacs-mode)
+(ergoemacs-mode 1)
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -89,6 +92,49 @@
   (counsel-mode 1))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Mapping
+;;bufers
+(global-set-key (kbd "<f2>") 'bs-show)
+(global-set-key (kbd "C-M-i") 'windmove-up)
+(global-set-key (kbd "C-M-k") 'windmove-down)
+(global-set-key (kbd "C-M-j") 'windmove-left)
+(global-set-key (kbd "C-M-l") 'windmove-right)
+
+;;bufer-move
+(use-package buffer-move
+  :ensure t)
+
+(global-set-key (kbd "C-I") 'buf-move-up)
+(global-set-key (kbd "C-K") 'buf-move-down)
+(global-set-key (kbd "C-J") 'buf-move-left)
+(global-set-key (kbd "C-L") 'buf-move-right)
+;;search ivy
+
+(global-set-key (kbd "C-f") 'swiper)
+
+;;resize window
+(defun enlarge-vert ()
+  (interactive)
+  (enlarge-window 2))
+
+(defun shrink-vert ()
+  (interactive)
+  (enlarge-window -2))
+
+(defun enlarge-horz ()					
+  (interactive)
+  (enlarge-window-horizontally 2))
+
+(defun shrink-horz ()
+  (interactive)
+  (enlarge-window-horizontally -2))
+
+(define-prefix-command 'my-mapping)
+(define-key my-mapping (kbd "C-c k") 'shrink-vert)
+(define-key my-mapping (kbd "C-c i") 'enlarge-vert)
+(define-key my-mapping (kbd "C-c j") 'shrink-horz)
+(define-key my-mapping (kbd "C-c l") 'enlarge-horz)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;LSP SERVERS
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -96,7 +142,7 @@
 (use-package lsp-mode
   :ensure t
   :hook
-  (c++-mode . lsp)
+  (c++-mode . lsp) 
   (java-mode . lsp)
   (c-mode . lsp))
 
@@ -169,7 +215,7 @@
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(initial-scratch-message nil)
  '(package-selected-packages
-   '(org-tempo gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
+   '(buffer-move org-tempo gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
