@@ -152,6 +152,8 @@
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
                          (lsp))))  ; or lsp-deferred
+
+
 ;;UI LSP WIH CURSOR
 (use-package lsp-ui
   :ensure t
