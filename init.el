@@ -2,9 +2,6 @@
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")))  
-(add-to-list 'load-path "~/.emacs.d/ergoemacs-mode")
-(require 'ergoemacs-mode)
-(ergoemacs-mode 1)
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -16,10 +13,10 @@
 ;;BASIC UI CONFIGURATION
 (setq inhibit-startup-message t)
 
-(scroll-bar-mode -1)        ; Disable visible scrollbar
-(tool-bar-mode -1)          ; Disable the toolbar
-(tooltip-mode -1)           ; Disable tooltips
-(set-fringe-mode 10)        ; Give some breathing room
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(tooltip-mode -1) 
+(set-fringe-mode 10)
 
 (setq blink-cursor-blinks 0)
 
@@ -28,7 +25,10 @@
 (setq-default c-basic-offset     4)
 (setq-default standart-indent    4)
 
-(menu-bar-mode -1)            ; Disable the menu bar
+;;image in org mode size
+(setq org-image-actual-width 600)
+
+(menu-bar-mode -1)
 
 ;; Set up the visible bell
 (setq visible-bell t)
@@ -38,8 +38,7 @@
 
 ;;colors CURSOR
 (set-frame-parameter nil 'cursor-color "#ffffff")
-(add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))  ;; Disable line numbers for some modes
-
+(add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))
 
 (dolist (mode '(org-mode-hook
                 term-mode-hook
@@ -49,7 +48,7 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;FONT
-(set-face-attribute 'default nil :font "terminus-14")
+(set-face-attribute 'default nil :font "Hack Nerd Font-13")
 
 ;;set "gnu" style for c
 (setq c-deafault-style "linux"
@@ -57,6 +56,9 @@
 
 ;;auto pairnn
 (electric-pair-mode 1)
+
+(setq org-src-fontify-natively 't)
+(setq org-startup-with-inline-images t)
 
 ;;Ivy and Counsel
 (use-package ivy
@@ -91,26 +93,11 @@
   :config
   (counsel-mode 1))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Mapping
-;;bufers
-(global-set-key (kbd "<f2>") 'bs-show)
-(global-set-key (kbd "C-M-i") 'windmove-up)
-(global-set-key (kbd "C-M-k") 'windmove-down)
-(global-set-key (kbd "C-M-j") 'windmove-left)
-(global-set-key (kbd "C-M-l") 'windmove-right)
-
-;;bufer-move
-(use-package buffer-move
-  :ensure t)
-
-(global-set-key (kbd "C-I") 'buf-move-up)
-(global-set-key (kbd "C-K") 'buf-move-down)
-(global-set-key (kbd "C-J") 'buf-move-left)
-(global-set-key (kbd "C-L") 'buf-move-right)
-;;search ivy
-
-(global-set-key (kbd "C-f") 'swiper)
+;;Mapping
+(global-set-key (kbd "C-M-p") 'windmove-up)
+(global-set-key (kbd "C-M-n") 'windmove-down)
+(global-set-key (kbd "C-M-b") 'windmove-left)
+(global-set-key (kbd "C-M-f") 'windmove-right)
 
 ;;resize window
 (defun enlarge-vert ()
@@ -135,10 +122,19 @@
 (define-key my-mapping (kbd "C-c j") 'shrink-horz)
 (define-key my-mapping (kbd "C-c l") 'enlarge-horz)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(define-prefix-command 'window-resize-map)
+(global-set-key (kbd "C-x w") 'window-resize-map)
+
+(define-key window-resize-map (kbd "p") 'enlarge-window)
+(define-key window-resize-map (kbd "n") (lambda () (interactive) (enlarge-window -4)))
+(define-key window-resize-map (kbd "f") 'enlarge-window-horizontally)
+(define-key window-resize-map (kbd "b") (lambda () (interactive) (enlarge-window-horizontally -4)))
+
+;;bufer-move
+(use-package buffer-move
+  :ensure t)
+
 ;;LSP SERVERS
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;c/C++ MODE
 (use-package lsp-mode
   :ensure t
   :hook
@@ -146,15 +142,11 @@
   (java-mode . lsp)
   (c-mode . lsp))
 
-;;python
 (use-package lsp-pyright
   :ensure t
   :hook (python-mode . (lambda ()
                          (require 'lsp-pyright)
-                         (lsp))))  ; or lsp-deferred
-
-
-;;UI LSP WIH CURSOR
+                         (lsp))))
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
@@ -173,8 +165,6 @@
   :custom
   (ivy-prescient-enable-filtering nil)
   :config
-  ;; Uncomment the following line to have sorting remembered across sessions!
-										;(prescient-persist-mode 1)
   (ivy-prescient-mode 1))
 
 ;;HELPFUL HELP COMMANDS
@@ -189,35 +179,78 @@
   ([remap describe-variable] . counsel-describe-variable)
   ([remap describe-key] . helpful-key))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; git
 (use-package magit
   :commands magit-status
   :custom
   (magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1))
 
-;; NOTE: Make sure to configure a GitHub token before using this package!
-;; - https://magit.vc/manual/forge/Token-Creation.html#Token-Creation
-;; - https://magit.vc/manual/ghub/Getting-Started.html#Getting-Started
 (use-package forge
   :after magit)
 
-;;;;;;;;;ORGmode;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ORGmode files;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (setq org-directory "~/Docs/org")
 (setq org-agenda-files (directory-files-recursively org-directory "\\.org$"))
 (keymap-global-set "C-c a" 'org-agenda)
+
+(defun efs/org-font-setup ()
+  ;; Replace list hyphen with dot
+  (font-lock-add-keywords 'org-mode
+                          '(("^ *\\([-]\\) "
+                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
+
+  ;; Set faces for heading levels
+  (dolist (face '((org-level-1 . 1.2)
+                  (org-level-2 . 1.1)
+                  (org-level-3 . 1.05)
+                  (org-level-4 . 1.0)
+                  (org-level-5 . 1.1)
+                  (org-level-6 . 1.1)
+                  (org-level-7 . 1.1)
+                  (org-level-8 . 1.1)))
+    (set-face-attribute (car face) nil :font "Hack Nerd Font" :weight 'regular :height (cdr face)))
+
+  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
+  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
+  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
+  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
+  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
+
+(use-package org
+  :hook (org-mode . efs/org-mode-setup)
+  :config
+  (setq org-ellipsis " ▾")
+  (efs/org-font-setup))
+
+(use-package org-bullets
+  :after org
+  :hook (org-mode . org-bullets-mode)
+  :custom
+  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
+
+(defun efs/org-mode-visual-fill ()
+  (setq visual-fill-column-width 200
+        visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+
+(use-package visual-fill-column
+  :hook (org-mode . efs/org-mode-visual-fill))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(gruber-darker))
+ '(custom-enabled-themes '(wombat))
  '(custom-safe-themes
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(initial-scratch-message nil)
  '(package-selected-packages
-   '(buffer-move org-tempo gruber-darker-theme company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
+   '(auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
