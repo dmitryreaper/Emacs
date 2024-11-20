@@ -30,6 +30,9 @@
 
 (menu-bar-mode -1)
 
+;; modeline bar doom
+(doom-modeline-mode t)
+
 ;; Set up the visible bell
 (setq visible-bell t)
 
@@ -40,6 +43,7 @@
 (set-frame-parameter nil 'cursor-color "#ffffff")
 (add-to-list 'default-frame-alist '(cursor-color . "#ffffff"))
 
+;;line-numbers-mode off 
 (dolist (mode '(org-mode-hook
                 term-mode-hook
                 shell-mode-hook
@@ -48,17 +52,18 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;FONT
-(set-face-attribute 'default nil :font "Hack Nerd Font-13")
+(set-face-attribute 'default nil :font "Hack Nerd Font-11")
 
 ;;set "gnu" style for c
 (setq c-deafault-style "linux"
       c-basic-offset 4)
 
-;;auto pairnn
+;;auto pair
 (electric-pair-mode 1)
 
 (setq org-src-fontify-natively 't)
 (setq org-startup-with-inline-images t)
+
 
 ;;Ivy and Counsel
 (use-package ivy
@@ -130,10 +135,6 @@
 (define-key window-resize-map (kbd "f") 'enlarge-window-horizontally)
 (define-key window-resize-map (kbd "b") (lambda () (interactive) (enlarge-window-horizontally -4)))
 
-;;bufer-move
-(use-package buffer-move
-  :ensure t)
-
 ;;LSP SERVERS
 (use-package lsp-mode
   :ensure t
@@ -142,11 +143,6 @@
   (java-mode . lsp)
   (c-mode . lsp))
 
-(use-package lsp-pyright
-  :ensure t
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp))))
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
@@ -167,18 +163,6 @@
   :config
   (ivy-prescient-mode 1))
 
-;;HELPFUL HELP COMMANDS
-(use-package helpful
-  :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :custom
-  (counsel-describe-function-function #'helpful-callable)
-  (counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-key] . helpful-key))
-
 ;; git
 (use-package magit
   :commands magit-status
@@ -195,7 +179,6 @@
 (keymap-global-set "C-c a" 'org-agenda)
 
 (defun efs/org-font-setup ()
-  ;; Replace list hyphen with dot
   (font-lock-add-keywords 'org-mode
                           '(("^ *\\([-]\\) "
                              (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
@@ -240,6 +223,104 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EXWM;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(use-package exwm
+  :config
+  ;; Set the default number of workspaces
+  (setq exwm-workspace-number 5)
+
+  ;; When window "class" updates, use it to set the buffer name
+  ;; (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+
+  ;; These keys should always pass through to Emacs
+  (setq exwm-input-prefix-keys
+		'(?\C-x
+		  ?\C-u
+		  ?\C-h
+		  ?\M-x
+		  ?\M-`
+		  ?\M-&
+		  ?\M-:
+		  ?\C-\M-j  ;; Buffer list
+		  ?\C-\ ))  ;; Ctrl+Space
+
+  ;; Ctrl+Q will enable the next key to be sent directly
+  (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
+
+  ;; function for volume 
+  (defun exwm/volume-increase ()
+	"Increase volume by 5% using pactl."
+	(interactive)
+	(start-process-shell-command "pactl" nil "pactl set-sink-volume @DEFAULT_SINK@ +5%"))
+
+  (defun exwm/volume-decrease ()
+	"Decrease volume by 5% using pactl."
+	(interactive)
+	(start-process-shell-command "pactl" nil "pactl set-sink-volume @DEFAULT_SINK@ -5%"))
+
+  (defun exwm/volume-mute-toggle ()
+	"Toggle mute using pactl."
+	(interactive)
+	(start-process-shell-command "pactl" nil "pactl set-sink-mute @DEFAULT_SINK@ toggle"))
+
+  ;; Volume keybindings
+  (exwm-input-set-key (kbd "<XF86AudioRaiseVolume>") 'exwm/volume-increase)
+  (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") 'exwm/volume-decrease)
+  (exwm-input-set-key (kbd "<XF86AudioMute>") 'exwm/volume-mute-toggle)
+
+  ;;battery
+  (when (display-battery-mode 1)
+	(setq battery-mode-line-format "[%b: %p%% | %t ]"))
+
+  ;;time
+  (display-time-mode t)
+  
+  ;; view volume in bar
+  (unless (package-installed-p 'pulseaudio-control)
+	(package-refresh-contents)
+	(package-install 'pulseaudio-control))
+  (require 'pulseaudio-control)
+  
+  (defun my-update-pulseaudio-display ()
+	"Update pulseaudio control display mode every second."
+	(pulseaudio-control-display-mode t))
+
+  ;; Запускаем таймер, который вызывает функцию каждую секунду
+  (run-with-timer 0 1 #'my-update-pulseaudio-display)
+
+  ;; Set up global key bindings.  These always work, no matter the input state!
+  ;; Keep in mind that changing this list after EXWM initializes has no effect.
+  (setq exwm-input-global-keys
+        `(
+          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+          ([?\s-r] . exwm-reset)
+
+          ;; Move between windows
+          ([s-left] . windmove-left)
+          ([s-right] . windmove-right)
+          ([s-up] . windmove-up)
+          ([s-down] . windmove-down)
+
+          ;; Launch applications via shell command
+          ([?\s-d] . (lambda (command)
+                       (interactive (list (read-shell-command "$ ")))
+                       (start-process-shell-command command nil command)))
+
+          ;; Switch workspace
+          ([?\s-w] . exwm-workspace-switch)
+
+          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+          ,@(mapcar (lambda (i)
+                      `(,(kbd (format "s-%d" i)) .
+                        (lambda ()
+                          (interactive)
+                          (exwm-workspace-switch-create ,i))))
+                    (number-sequence 0 9))))
+
+  (exwm-enable))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -250,7 +331,7 @@
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(initial-scratch-message nil)
  '(package-selected-packages
-   '(auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-pyright lsp-mode counsel ivy-rich ivy)))
+   '(el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
