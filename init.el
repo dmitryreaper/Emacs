@@ -58,12 +58,28 @@
 (setq c-deafault-style "linux"
       c-basic-offset 4)
 
+;;garbage
+(setq gc-cons-threshold (* 100 1000 1000))
+(setq gc-cons-percentage 0.6)
+
+(use-package gcmh
+  :ensure t
+  :config
+  (gcmh-mode 1))
+
 ;;auto pair
 (electric-pair-mode 1)
 
 (setq org-src-fontify-natively 't)
 (setq org-startup-with-inline-images t)
 
+;; Включить плавную прокрутку
+(setq scroll-step 1)
+(setq scroll-conservatively 10000)
+(setq auto-window-vscroll nil)
+
+;; Дополнительно: более плавная прокрутка с мышью
+(pixel-scroll-precision-mode t)
 
 ;;Ivy and Counsel
 (use-package ivy
@@ -149,9 +165,9 @@
   :custom
   (lsp-ui-doc-show-with-cursor t))
 
-(use-package flycheck
-  :ensure t
-  :init (global-flycheck-mode))
+;;(use-package flycheck
+;;  :ensure t
+;;  :init (global-flycheck-mode))
 
 (add-hook 'after-init-hook 'global-company-mode)
 
@@ -282,13 +298,6 @@
 	(package-install 'pulseaudio-control))
   (require 'pulseaudio-control)
   
-  (defun my-update-pulseaudio-display ()
-	"Update pulseaudio control display mode every second."
-	(pulseaudio-control-display-mode t))
-
-  ;; Запускаем таймер, который вызывает функцию каждую секунду
-  (run-with-timer 0 1 #'my-update-pulseaudio-display)
-
   ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
   (setq exwm-input-global-keys
@@ -331,7 +340,7 @@
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(initial-scratch-message nil)
  '(package-selected-packages
-   '(el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
+   '(gcmh el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
