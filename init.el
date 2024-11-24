@@ -13,7 +13,6 @@
 ;;BASIC UI CONFIGURATION
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice nil)
-
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (tooltip-mode -1) 
@@ -101,6 +100,13 @@
   :after ivy
   :init
   (ivy-rich-mode 1))
+
+(use-package ivy-posframe
+  :ensure t
+  :after ivy
+  :init
+  (ivy-posframe-mode t))
+
 
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
@@ -252,24 +258,46 @@
   :config
   ;; Set the default number of workspaces
   (setq exwm-workspace-number 6)
-
   ;;make workspace 1 startup
   (defun efs/exwm-init-hook ()
 	(exwm-workspace-switch-create 1))
-
   ;;open eshell by default
   ;;(eshell)
-
+  ;;start server emacs
+  (server-start)
   ;;name workspace
   (defun efs/exwm-update-class ()
 	(exwm-workspace-rename-buffer exwm-class-name))
+  ;;polybar
+  (defvar efs/polybar-process nil
+	"Holds the process of the running Polybar instance, if any")
+  (defun efs/kill-panel ()
+	(interactive)
+	(when efs/polybar-process
+      (ignore-errors
+		(kill-process efs/polybar-process)))
+	(setq efs/polybar-process nil))
+
+  (defun efs/start-panel ()
+	(interactive)
+	(efs/kill-panel)
+	(setq efs/polybar-process (start-process-shell-command "polybar" nil "polybar panel")))
   
+  (defun efs/send-polybar-hook (module-name hook-index)
+	(start-process-shell-command "polybar-msg" nil (format "polybar hook %s %s" module-name hook-index)))
+
+  (defun efs/send-polybar-exwm-workspace ()
+	(efs/send-polybar-hook "exwm-workspace" 2))
+
+  ;; Update panel indicator when workspace changes
+  (add-hook 'exwm-workspace-switch-hook #'efs/send-polybar-exwm-workspace)  
   ;; When window "class" updates, use it to set the buffer name
   (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
-  
   ;; When exwm starts up
   (add-hook 'exwm-init-hook #'efs/exwm-init-hook)
-  
+  ;;polybar start
+  (efs/start-panel)
+
   ;; These keys should always pass through to Emacs
   (setq exwm-input-prefix-keys
 		'(?\C-x
@@ -309,22 +337,6 @@
   (exwm-input-set-key (kbd "<XF86AudioLowerVolume>") 'exwm/volume-decrease)
   (exwm-input-set-key (kbd "<XF86AudioMute>") 'exwm/volume-mute-toggle)
 
-  ;;battery
-  (when (display-battery-mode 1)
-	(setq battery-mode-line-format "[%b: %p%% | %t ]"))
-
-  ;;time
-  (display-time-mode t)
-
-  ;;system tray
-  ;;(exwm-systemtray-mode t)
-  
-  ;; view volume in bar
-  (unless (package-installed-p 'pulseaudio-control)
-	(package-refresh-contents)
-	(package-install 'pulseaudio-control))
-  (require 'pulseaudio-control)
-  
   ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
   ;; Добавьте в список exwm-input-global-keys привязку для клавиши PrintScreen
@@ -342,20 +354,20 @@
 		  
           ;; Добавляем привязку для PrintScreen
           ([s-print] . (lambda ()
-                       (interactive)
-                       (start-process-shell-command "flameshot" nil "flameshot gui")))
+						 (interactive)
+						 (start-process-shell-command "flameshot" nil "flameshot gui")))
 		  
 		  ([s-return] . (lambda ()
 						  (interactive)
 						  (start-process-shell-command "xterm" nil "xterm")))
 
-		;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-		,@(mapcar (lambda (i)
-					`(,(kbd (format "s-%d" i)) .
-					  (lambda ()
-						(interactive)
-						(exwm-workspace-switch-create ,i))))
-				  (number-sequence 0 9))))
+		  ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+		  ,@(mapcar (lambda (i)
+					  `(,(kbd (format "s-%d" i)) .
+						(lambda ()
+						  (interactive)
+						  (exwm-workspace-switch-create ,i))))
+					(number-sequence 0 9))))
 
   (exwm-enable))
 
@@ -369,10 +381,10 @@
  '(custom-safe-themes
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
  '(package-selected-packages
-   '(dashboard gcmh el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
+   '(ivy-posframe dashboard gcmh el-fetch doom-modeline exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
+ ;; if there is more than one, they won't work right.
  )
