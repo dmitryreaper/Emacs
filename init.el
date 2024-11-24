@@ -12,6 +12,7 @@
 
 ;;BASIC UI CONFIGURATION
 (setq inhibit-startup-message t)
+(setq initial-buffer-choice nil)
 
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
@@ -59,17 +60,13 @@
       c-basic-offset 4)
 
 ;;garbage
-(setq gc-cons-threshold (* 100 1000 1000))
+(setq gc-cons-threshold (* 10 1000 1000))
 (setq gc-cons-percentage 0.6)
-
-(use-package gcmh
-  :ensure t
-  :config
-  (gcmh-mode 1))
 
 ;;auto pair
 (electric-pair-mode 1)
 
+;; view image in org mode
 (setq org-src-fontify-natively 't)
 (setq org-startup-with-inline-images t)
 
@@ -239,16 +236,40 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
+(use-package dashboard
+  :ensure t
+  :config
+  (dashboard-setup-startup-hook)
+  (setq dashboard-startup-banner "/home/dima/Pictures/demon.png") ; Логотип Emacs
+  (setq dashboard-center-content t)         ; Центрирование содержимого
+  (setq dashboard-items '((recents  . 5)    ; Последние файлы
+                          (projects . 5)    ; Последние проекты
+                          (agenda   . 5))) ; События из Org Mode
+  (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EXWM;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package exwm
   :config
   ;; Set the default number of workspaces
-  (setq exwm-workspace-number 5)
+  (setq exwm-workspace-number 6)
 
+  ;;make workspace 1 startup
+  (defun efs/exwm-init-hook ()
+	(exwm-workspace-switch-create 1))
+
+  ;;open eshell by default
+  ;;(eshell)
+
+  ;;name workspace
+  (defun efs/exwm-update-class ()
+	(exwm-workspace-rename-buffer exwm-class-name))
+  
   ;; When window "class" updates, use it to set the buffer name
-  ;; (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
-
+  (add-hook 'exwm-update-class-hook #'efs/exwm-update-class)
+  
+  ;; When exwm starts up
+  (add-hook 'exwm-init-hook #'efs/exwm-init-hook)
+  
   ;; These keys should always pass through to Emacs
   (setq exwm-input-prefix-keys
 		'(?\C-x
@@ -261,9 +282,12 @@
 		  ?\C-\M-j  ;; Buffer list
 		  ?\C-\ ))  ;; Ctrl+Space
 
+  
+  (setq frame-resize-pixelwise t)
+
   ;; Ctrl+Q will enable the next key to be sent directly
   (define-key exwm-mode-map [?\C-q] 'exwm-input-send-next-key)
-
+  
   ;; function for volume 
   (defun exwm/volume-increase ()
 	"Increase volume by 5% using pactl."
@@ -291,6 +315,9 @@
 
   ;;time
   (display-time-mode t)
+
+  ;;system tray
+  ;;(exwm-systemtray-mode t)
   
   ;; view volume in bar
   (unless (package-installed-p 'pulseaudio-control)
@@ -300,32 +327,35 @@
   
   ;; Set up global key bindings.  These always work, no matter the input state!
   ;; Keep in mind that changing this list after EXWM initializes has no effect.
+  ;; Добавьте в список exwm-input-global-keys привязку для клавиши PrintScreen
   (setq exwm-input-global-keys
-        `(
-          ;; Reset to line-mode (C-c C-k switches to char-mode via exwm-input-release-keyboard)
+		`(
+          ;; Другие привязки
           ([?\s-r] . exwm-reset)
-
-          ;; Move between windows
-          ([s-left] . windmove-left)
-          ([s-right] . windmove-right)
-          ([s-up] . windmove-up)
-          ([s-down] . windmove-down)
-
-          ;; Launch applications via shell command
-          ([?\s-d] . (lambda (command)
-                       (interactive (list (read-shell-command "$ ")))
-                       (start-process-shell-command command nil command)))
-
-          ;; Switch workspace
+          ([s-b] . windmove-left)
+          ([s-f] . windmove-right)
+          ([s-p] . windmove-up)
+          ([s-n] . windmove-down)
+		  ([C-s-return] . counsel-linux-app)
           ([?\s-w] . exwm-workspace-switch)
+		  
+		  
+          ;; Добавляем привязку для PrintScreen
+          ([s-print] . (lambda ()
+                       (interactive)
+                       (start-process-shell-command "flameshot" nil "flameshot gui")))
+		  
+		  ([s-return] . (lambda ()
+						  (interactive)
+						  (start-process-shell-command "xterm" nil "xterm")))
 
-          ;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
-          ,@(mapcar (lambda (i)
-                      `(,(kbd (format "s-%d" i)) .
-                        (lambda ()
-                          (interactive)
-                          (exwm-workspace-switch-create ,i))))
-                    (number-sequence 0 9))))
+		;; 's-N': Switch to certain workspace with Super (Win) plus a number key (0 - 9)
+		,@(mapcar (lambda (i)
+					`(,(kbd (format "s-%d" i)) .
+					  (lambda ()
+						(interactive)
+						(exwm-workspace-switch-create ,i))))
+				  (number-sequence 0 9))))
 
   (exwm-enable))
 
@@ -338,9 +368,8 @@
  '(custom-enabled-themes '(wombat))
  '(custom-safe-themes
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
- '(initial-scratch-message nil)
  '(package-selected-packages
-   '(gcmh el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
+   '(dashboard gcmh el-fetch doom-modeline pulseaudio-control exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
