@@ -1,7 +1,7 @@
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
-						 ("elpa" . "https://elpa.gnu.org/packages/")))  
+						 ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 
 (unless (package-installed-p 'use-package)
@@ -29,6 +29,11 @@
 (setq org-image-actual-width 600)
 
 (menu-bar-mode -1)
+(use-package evil
+  :ensure t
+  :config
+  (evil-mode 1)
+  (evil-collection-init))
 
 ;; modeline bar doom
 (doom-modeline-mode t)
@@ -48,7 +53,9 @@
                 term-mode-hook
                 shell-mode-hook
                 treemacs-mode-hook
-                eshell-mode-hook))
+				pdf-view-mode-hook
+                eshell-mode-hook
+				nov-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;FONT
@@ -101,12 +108,17 @@
   :init
   (ivy-rich-mode 1))
 
-(use-package ivy-posframe
+;;(use-package ivy-posframe
+;;  :ensure t
+;;  :after ivy
+;;  :init
+;;  (ivy-posframe-mode t))
+(use-package spray
   :ensure t
-  :after ivy
-  :init
-  (ivy-posframe-mode t))
-
+  :config
+  (setq spray-wpm 400) ; Установить скорость 400 слов в минуту
+  (global-set-key (kbd "C-c s") 'spray-mode)
+  (setq spray-align-to-center t)) 
 
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
@@ -238,6 +250,12 @@
 (use-package visual-fill-column
   :hook (org-mode . efs/org-mode-visual-fill))
 
+(use-package nov
+  :ensure t
+  :mode ("\\.epub\\'" . nov-mode)
+  :config
+  (add-hook 'nov-mode-hook 'visual-line-mode)) ;; Авто-перенос строк
+
 (use-package dashboard
   :ensure t
   :config
@@ -249,6 +267,13 @@
                           (agenda   . 5))) ; События из Org Mode
   (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
+ (use-package pdf-tools
+   :ensure t
+   :config (pdf-tools-install))
+
+(use-package org-pdftools
+  :hook (org-mode . org-pdftools-setup-link))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -256,9 +281,14 @@
  ;; If there is more than one, they won't work right.
  '(custom-enabled-themes '(wombat))
  '(custom-safe-themes
-   '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd" default))
+   '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd"
+	 default))
  '(package-selected-packages
-   '(ivy-posframe dashboard gcmh el-fetch doom-modeline exwm auto-org-md projectile sr-speedbar buffer-move org-tempo company lsp-java forge magit helpful ivy-prescient flycheck lsp-ui lsp-mode counsel ivy-rich ivy)))
+   '(company counsel dashboard doom-modeline evil evil-collection forge
+			 ivy-posframe ivy-prescient ivy-rich lsp-java lsp-ui nov
+			 org-bullets org-pdftools org-pdfview pdf-tools spray
+			 visual-fill-column))
+ '(warning-suppress-log-types '((evil-collection))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
