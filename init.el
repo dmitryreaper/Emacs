@@ -28,12 +28,29 @@
 ;;image in org mode size
 (setq org-image-actual-width 600)
 
+(defun my-spray-align-center ()
+  "Align text to center in spray-mode."
+  (let* ((window-width (window-total-width))
+         (spray-width 70) ; Ширина текста в spray-mode
+         (margin (/ (- window-width spray-width) 2)))
+    (setq-local left-margin-width margin)
+    (setq-local right-margin-width margin)
+    (set-window-buffer (selected-window) (current-buffer))))
+
+(add-hook 'spray-mode-hook 'my-spray-align-center)
+
 (menu-bar-mode -1)
+
 (use-package evil
   :ensure t
   :config
   (evil-mode 1)
-  (evil-collection-init))
+  (evil-collection-init)
+  (setq evil-insert-state-cursor 'box)
+  (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
+  (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state))
 
 ;; modeline bar doom
 (doom-modeline-mode t)
@@ -113,6 +130,7 @@
 ;;  :after ivy
 ;;  :init
 ;;  (ivy-posframe-mode t))
+
 (use-package spray
   :ensure t
   :config
@@ -203,53 +221,7 @@
 (use-package forge
   :after magit)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ORGmode files;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun efs/org-font-setup ()
-  (font-lock-add-keywords 'org-mode
-                          '(("^ *\\([-]\\) "
-                             (0 (prog1 () (compose-region (match-beginning 1) (match-end 1) "•"))))))
-
-  ;; Set faces for heading levels
-  (dolist (face '((org-level-1 . 1.2)
-                  (org-level-2 . 1.1)
-                  (org-level-3 . 1.05)
-                  (org-level-4 . 1.0)
-                  (org-level-5 . 1.1)
-                  (org-level-6 . 1.1)
-                  (org-level-7 . 1.1)
-                  (org-level-8 . 1.1)))
-    (set-face-attribute (car face) nil :font "Hack Nerd Font" :weight 'regular :height (cdr face)))
-
-  ;; Ensure that anything that should be fixed-pitch in Org files appears that way
-  (set-face-attribute 'org-block nil :foreground nil :inherit 'fixed-pitch)
-  (set-face-attribute 'org-code nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-table nil   :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-verbatim nil :inherit '(shadow fixed-pitch))
-  (set-face-attribute 'org-special-keyword nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-meta-line nil :inherit '(font-lock-comment-face fixed-pitch))
-  (set-face-attribute 'org-checkbox nil :inherit 'fixed-pitch))
-
-(use-package org
-  :hook (org-mode . efs/org-mode-setup)
-  :config
-  (setq org-ellipsis " ▾")
-  (efs/org-font-setup))
-
-(use-package org-bullets
-  :after org
-  :hook (org-mode . org-bullets-mode)
-  :custom
-  (org-bullets-bullet-list '("◉" "○" "●" "○" "●" "○" "●")))
-
-(defun efs/org-mode-visual-fill ()
-  (setq visual-fill-column-width 200
-        visual-fill-column-center-text t)
-  (visual-fill-column-mode 1))
-
-(use-package visual-fill-column
-  :hook (org-mode . efs/org-mode-visual-fill))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (use-package nov
   :ensure t
   :mode ("\\.epub\\'" . nov-mode)
@@ -267,12 +239,9 @@
                           (agenda   . 5))) ; События из Org Mode
   (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
- (use-package pdf-tools
-   :ensure t
-   :config (pdf-tools-install))
-
 (use-package org-pdftools
-  :hook (org-mode . org-pdftools-setup-link))
+  :hook
+  (org-mode . org-pdftools-setup-link))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -294,4 +263,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+)
