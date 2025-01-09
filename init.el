@@ -28,29 +28,7 @@
 ;;image in org mode size
 (setq org-image-actual-width 600)
 
-(defun my-spray-align-center ()
-  "Align text to center in spray-mode."
-  (let* ((window-width (window-total-width))
-         (spray-width 70) ; Ширина текста в spray-mode
-         (margin (/ (- window-width spray-width) 2)))
-    (setq-local left-margin-width margin)
-    (setq-local right-margin-width margin)
-    (set-window-buffer (selected-window) (current-buffer))))
-
-(add-hook 'spray-mode-hook 'my-spray-align-center)
-
 (menu-bar-mode -1)
-
-(use-package evil
-  :ensure t
-  :config
-  (evil-mode 1)
-  (evil-collection-init)
-  (setq evil-insert-state-cursor 'box)
-  (define-key evil-insert-state-map (kbd "M-h") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "M-j") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "M-k") 'evil-normal-state)
-  (define-key evil-insert-state-map (kbd "M-l") 'evil-normal-state))
 
 ;; modeline bar doom
 (doom-modeline-mode t)
@@ -101,6 +79,98 @@
 ;; Дополнительно: более плавная прокрутка с мышью
 (pixel-scroll-precision-mode t)
 
+;; Настраиваем перемещение для русской раскладки
+(defun setup-ru-layout-keys ()
+  "Переназначить клавиши перемещения для русской раскладки."
+  (let ((key-remap '(
+                     ;; Перемещение
+                     ("C-а" . "C-f")  ;; Вперёд (forward-char)
+                     ("C-и" . "C-b")  ;; Назад (backward-char)
+                     ("C-т" . "C-n")  ;; Вниз (next-line)
+                     ("C-з" . "C-p")  ;; Вверх (previous-line)
+					 ("C-ф" . "C-a")  ;; В начало строки
+					 ("C-у" . "C-e")  ;; В конец строки
+                     ;; Удаление
+                     ("C-в" . "C-d")  ;; Удалить символ (delete-char)
+                     ("C-л" . "C-k")  ;; Удалить строку (kill-line)
+
+					 ;; Перемещение по словам
+                     ("M-а" . "M-f")  ;; перемещение по слову вмеред (kill-line)
+					 ("M-и" . "M-b")
+
+                     )))
+    (dolist (pair key-remap)
+      (define-key key-translation-map (kbd (car pair)) (kbd (cdr pair))))))
+
+;; Активируем настройки
+(setup-ru-layout-keys)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Chatgpt
+
+(use-package ellama
+    :bind ("C-c e" . ellama-transient-main-menu)
+    :init
+    ;; setup key bindings
+    ;; (setopt ellama-keymap-prefix "C-c e")
+    ;; language you want ellama to translate to
+    (setopt ellama-language "German")
+    ;; could be llm-openai for example
+    (require 'llm-ollama)
+    (setopt ellama-provider
+	  (make-llm-ollama
+	       ;; this model should be pulled to use it
+	       ;; value should be the same as you print in terminal during pull
+	       :chat-model "llama3.2:latest"
+	       :embedding-model "nomic-embed-text"
+	       :default-chat-non-standard-params '(("num_ctx" . 8192))))
+    (setopt ellama-summarization-provider
+	      (make-llm-ollama
+	       :chat-model "qwen2.5:3b"
+	       :embedding-model "nomic-embed-text"
+	       :default-chat-non-standard-params '(("num_ctx" . 32768))))
+    (setopt ellama-coding-provider
+	      (make-llm-ollama
+	       :chat-model "qwen2.5-coder:3b"
+	       :embedding-model "nomic-embed-text"
+	       :default-chat-non-standard-params '(("num_ctx" . 32768))))
+    ;; Predefined llm providers for interactive switching.
+    ;; You shouldn't add ollama providers here - it can be selected interactively
+    ;; without it. It is just example.
+    (setopt ellama-providers
+	      '(("zephyr" . (make-llm-ollama
+			     :chat-model "zephyr:7b-beta-q6_K"
+			     :embedding-model "zephyr:7b-beta-q6_K"))
+		("mistral" . (make-llm-ollama
+			      :chat-model "mistral:7b-instruct-v0.2-q6_K"
+			      :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
+		("mixtral" . (make-llm-ollama
+			      :chat-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"
+			      :embedding-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"))))
+    ;; Naming new sessions with llm
+    (setopt ellama-naming-provider
+	      (make-llm-ollama
+	       :chat-model "llama3.2:latest"
+	       :embedding-model "nomic-embed-text"
+	       :default-chat-non-standard-params '(("stop" . ("\n")))))
+    (setopt ellama-naming-scheme 'ellama-generate-name-by-llm)
+    ;; Translation llm provider
+    (setopt ellama-translation-provider
+	    (make-llm-ollama
+	     :chat-model "qwen2.5:3b"
+	     :embedding-model "nomic-embed-text"
+	     :default-chat-non-standard-params
+	     '(("num_ctx" . 32768))))
+    ;; customize display buffer behaviour
+    ;; see ~(info "(elisp) Buffer Display Action Functions")~
+    (setopt ellama-chat-display-action-function #'display-buffer-full-frame)
+    (setopt ellama-instant-display-action-function #'display-buffer-at-bottom)
+    :config
+    ;; send last message in chat buffer with C-c C-c
+    (add-hook 'org-ctrl-c-ctrl-c-hook #'ellama-chat-send-last-message))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 ;;Ivy and Counsel
 (use-package ivy
   :diminish
@@ -125,19 +195,6 @@
   :init
   (ivy-rich-mode 1))
 
-;;(use-package ivy-posframe
-;;  :ensure t
-;;  :after ivy
-;;  :init
-;;  (ivy-posframe-mode t))
-
-(use-package spray
-  :ensure t
-  :config
-  (setq spray-wpm 400) ; Установить скорость 400 слов в минуту
-  (global-set-key (kbd "C-c s") 'spray-mode)
-  (setq spray-align-to-center t)) 
-
 (use-package counsel
   :bind (("C-M-j" . 'counsel-switch-buffer)
          :map minibuffer-local-map
@@ -156,19 +213,19 @@
 ;;resize window
 (defun enlarge-vert ()
   (interactive)
-  (enlarge-window 2))
+  (enlarge-window 4))
 
 (defun shrink-vert ()
   (interactive)
-  (enlarge-window -2))
+  (enlarge-window -4))
 
 (defun enlarge-horz ()					
   (interactive)
-  (enlarge-window-horizontally 2))
+  (enlarge-window-horizontally 4))
 
 (defun shrink-horz ()
   (interactive)
-  (enlarge-window-horizontally -2))
+  (enlarge-window-horizontally -4))
 
 (define-prefix-command 'my-mapping)
 (define-key my-mapping (kbd "C-c k") 'shrink-vert)
@@ -179,9 +236,9 @@
 (define-prefix-command 'window-resize-map)
 (global-set-key (kbd "C-x w") 'window-resize-map)
 
-(define-key window-resize-map (kbd "p") 'enlarge-window)
+(define-key window-resize-map (kbd "p") (lambda () (interactive) (enlarge-window 4)))
 (define-key window-resize-map (kbd "n") (lambda () (interactive) (enlarge-window -4)))
-(define-key window-resize-map (kbd "f") 'enlarge-window-horizontally)
+(define-key window-resize-map (kbd "f") (lambda () (interactive) (enlarge-window-horizontally 4)))
 (define-key window-resize-map (kbd "b") (lambda () (interactive) (enlarge-window-horizontally -4)))
 
 ;;LSP SERVERS
@@ -190,17 +247,15 @@
   :hook
   (c++-mode . lsp) 
   (java-mode . lsp)
-  (c-mode . lsp))
+  (c-mode . lsp)
+  (csharp-mode . lsp)
+  (js-mode . lsp))
 
 (use-package lsp-ui
   :ensure t
   :after lsp-mode
   :custom
   (lsp-ui-doc-show-with-cursor t))
-
-;;(use-package flycheck
-;;  :ensure t
-;;  :init (global-flycheck-mode))
 
 (add-hook 'after-init-hook 'global-company-mode)
 
@@ -253,14 +308,15 @@
    '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd"
 	 default))
  '(package-selected-packages
-   '(company counsel dashboard doom-modeline evil evil-collection forge
-			 ivy-posframe ivy-prescient ivy-rich lsp-java lsp-ui nov
-			 org-bullets org-pdftools org-pdfview pdf-tools spray
-			 visual-fill-column))
+   '(chatgpt-shell company counsel dashboard doom-modeline ellama evil
+				   evil-collection forge ivy-posframe ivy-prescient
+				   ivy-rich lsp-java lsp-ui nov org-bullets
+				   org-pdftools org-pdfview org-present pdf-tools
+				   spray undo-tree visual-fill-column))
  '(warning-suppress-log-types '((evil-collection))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-)
+ )
