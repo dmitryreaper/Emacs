@@ -1,9 +1,12 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OPTIONAL SETTING;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
 						 ("org" . "https://orgmode.org/elpa/")
 						 ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
-
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
 
@@ -15,9 +18,13 @@
 (setq initial-buffer-choice nil)
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
+(menu-bar-mode -1)
 (tooltip-mode -1) 
 (set-fringe-mode 10)
+(column-number-mode)
+(global-display-line-numbers-mode t)
 
+;;Blinking cursor
 (setq blink-cursor-blinks 0)
 
 ;; tabs
@@ -28,16 +35,8 @@
 ;;image in org mode size
 (setq org-image-actual-width 600)
 
-(menu-bar-mode -1)
-
-;; modeline bar doom
-(doom-modeline-mode t)
-
 ;; Set up the visible bell
 (setq visible-bell t)
-
-(column-number-mode)
-(global-display-line-numbers-mode t)
 
 ;;colors CURSOR
 (set-frame-parameter nil 'cursor-color "#ffffff")
@@ -53,7 +52,7 @@
 				nov-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
-;;FONT
+;;font
 (set-face-attribute 'default nil :font "Hack Nerd Font-11")
 
 ;;set "gnu" style for c
@@ -78,6 +77,10 @@
 
 ;; Дополнительно: более плавная прокрутка с мышью
 (pixel-scroll-precision-mode t)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;MAPPING;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;; Настраиваем перемещение для русской раскладки
 (defun setup-ru-layout-keys ()
@@ -105,106 +108,6 @@
 ;; Активируем настройки
 (setup-ru-layout-keys)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; Chatgpt
-
-(use-package ellama
-    :bind ("C-c e" . ellama-transient-main-menu)
-    :init
-    ;; setup key bindings
-    ;; (setopt ellama-keymap-prefix "C-c e")
-    ;; language you want ellama to translate to
-    (setopt ellama-language "German")
-    ;; could be llm-openai for example
-    (require 'llm-ollama)
-    (setopt ellama-provider
-	  (make-llm-ollama
-	       ;; this model should be pulled to use it
-	       ;; value should be the same as you print in terminal during pull
-	       :chat-model "llama3.2:latest"
-	       :embedding-model "nomic-embed-text"
-	       :default-chat-non-standard-params '(("num_ctx" . 8192))))
-    (setopt ellama-summarization-provider
-	      (make-llm-ollama
-	       :chat-model "qwen2.5:3b"
-	       :embedding-model "nomic-embed-text"
-	       :default-chat-non-standard-params '(("num_ctx" . 32768))))
-    (setopt ellama-coding-provider
-	      (make-llm-ollama
-	       :chat-model "qwen2.5-coder:3b"
-	       :embedding-model "nomic-embed-text"
-	       :default-chat-non-standard-params '(("num_ctx" . 32768))))
-    ;; Predefined llm providers for interactive switching.
-    ;; You shouldn't add ollama providers here - it can be selected interactively
-    ;; without it. It is just example.
-    (setopt ellama-providers
-	      '(("zephyr" . (make-llm-ollama
-			     :chat-model "zephyr:7b-beta-q6_K"
-			     :embedding-model "zephyr:7b-beta-q6_K"))
-		("mistral" . (make-llm-ollama
-			      :chat-model "mistral:7b-instruct-v0.2-q6_K"
-			      :embedding-model "mistral:7b-instruct-v0.2-q6_K"))
-		("mixtral" . (make-llm-ollama
-			      :chat-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"
-			      :embedding-model "mixtral:8x7b-instruct-v0.1-q3_K_M-4k"))))
-    ;; Naming new sessions with llm
-    (setopt ellama-naming-provider
-	      (make-llm-ollama
-	       :chat-model "llama3.2:latest"
-	       :embedding-model "nomic-embed-text"
-	       :default-chat-non-standard-params '(("stop" . ("\n")))))
-    (setopt ellama-naming-scheme 'ellama-generate-name-by-llm)
-    ;; Translation llm provider
-    (setopt ellama-translation-provider
-	    (make-llm-ollama
-	     :chat-model "qwen2.5:3b"
-	     :embedding-model "nomic-embed-text"
-	     :default-chat-non-standard-params
-	     '(("num_ctx" . 32768))))
-    ;; customize display buffer behaviour
-    ;; see ~(info "(elisp) Buffer Display Action Functions")~
-    (setopt ellama-chat-display-action-function #'display-buffer-full-frame)
-    (setopt ellama-instant-display-action-function #'display-buffer-at-bottom)
-    :config
-    ;; send last message in chat buffer with C-c C-c
-    (add-hook 'org-ctrl-c-ctrl-c-hook #'ellama-chat-send-last-message))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;;Ivy and Counsel
-(use-package ivy
-  :diminish
-  :bind (("C-s" . swiper)
-         :map ivy-minibuffer-map
-         ("TAB" . ivy-alt-done)
-         ("C-l" . ivy-alt-done)
-         ("C-j" . ivy-next-line)
-         ("C-k" . ivy-previous-line)
-         :map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill)
-         :map ivy-reverse-i-search-map
-         ("C-k" . ivy-previous-line)
-         ("C-d" . ivy-reverse-i-search-kill))
-  :config
-  (ivy-mode 1))
-
-(use-package ivy-rich
-  :after ivy
-  :init
-  (ivy-rich-mode 1))
-
-(use-package counsel
-  :bind (("C-M-j" . 'counsel-switch-buffer)
-         :map minibuffer-local-map
-         ("C-r" . 'counsel-minibuffer-history))
-  :custom
-  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
-  :config
-  (counsel-mode 1))
-
-;;Mapping
 (global-set-key (kbd "C-M-p") 'windmove-up)
 (global-set-key (kbd "C-M-n") 'windmove-down)
 (global-set-key (kbd "C-M-b") 'windmove-left)
@@ -241,7 +144,56 @@
 (define-key window-resize-map (kbd "f") (lambda () (interactive) (enlarge-window-horizontally 4)))
 (define-key window-resize-map (kbd "b") (lambda () (interactive) (enlarge-window-horizontally -4)))
 
-;;LSP SERVERS
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;PACKAGES;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; Theme gruber-darker
+(use-package gruber-darker-theme
+  :ensure t
+  :config
+  (load-theme 'gruber-darker t))
+
+;; Company
+(use-package company
+  :ensure t
+  :config
+  (add-hook 'after-init-hook 'global-company-mode))
+
+;; Ivy and Counsel
+(use-package ivy
+  :diminish
+  :bind (("C-s" . swiper)
+         :map ivy-minibuffer-map
+         ("TAB" . ivy-alt-done)
+         ("C-l" . ivy-alt-done)
+         ("C-j" . ivy-next-line)
+         ("C-k" . ivy-previous-line)
+         :map ivy-switch-buffer-map
+         ("C-k" . ivy-previous-line)
+         ("C-l" . ivy-done)
+         ("C-d" . ivy-switch-buffer-kill)
+         :map ivy-reverse-i-search-map
+         ("C-k" . ivy-previous-line)
+         ("C-d" . ivy-reverse-i-search-kill))
+  :config
+  (ivy-mode 1))
+
+(use-package ivy-rich
+  :after ivy
+  :init
+  (ivy-rich-mode 1))
+
+(use-package counsel
+  :bind (("C-M-j" . 'counsel-switch-buffer)
+         :map minibuffer-local-map
+         ("C-r" . 'counsel-minibuffer-history))
+  :custom
+  (counsel-linux-app-format-function #'counsel-linux-app-format-function-name-only)
+  :config
+  (counsel-mode 1))
+
+;; Lsp servers
 (use-package lsp-mode
   :ensure t
   :hook
@@ -257,9 +209,7 @@
   :custom
   (lsp-ui-doc-show-with-cursor t))
 
-(add-hook 'after-init-hook 'global-company-mode)
-
-;;IMPROVED CANDIDATE SORTING WITH PRESCIENT.EL 
+;; Improved candidate sorting with prescient.el 
 (use-package ivy-prescient
   :after counsel
   :custom
@@ -267,7 +217,7 @@
   :config
   (ivy-prescient-mode 1))
 
-;; git
+;; Git
 (use-package magit
   :commands magit-status
   :custom
@@ -276,13 +226,7 @@
 (use-package forge
   :after magit)
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(use-package nov
-  :ensure t
-  :mode ("\\.epub\\'" . nov-mode)
-  :config
-  (add-hook 'nov-mode-hook 'visual-line-mode)) ;; Авто-перенос строк
-
+;; Startup logo
 (use-package dashboard
   :ensure t
   :config
@@ -294,25 +238,17 @@
                           (agenda   . 5))) ; События из Org Mode
   (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
-(use-package org-pdftools
-  :hook
-  (org-mode . org-pdftools-setup-link))
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes '(wombat))
- '(custom-safe-themes
-   '("01a9797244146bbae39b18ef37e6f2ca5bebded90d9fe3a2f342a9e863aaa4fd"
-	 default))
  '(package-selected-packages
-   '(chatgpt-shell company counsel dashboard doom-modeline ellama evil
-				   evil-collection forge ivy-posframe ivy-prescient
-				   ivy-rich lsp-java lsp-ui nov org-bullets
-				   org-pdftools org-pdfview org-present pdf-tools
-				   spray undo-tree visual-fill-column))
+   '(annalist company counsel dashboard doom-modeline forge goto-chg
+			  gruber-darker-theme helm-core ivy-prescient ivy-rich llm
+			  lsp-java lsp-ui org-bullets org-pdftools org-present
+			  queue shell-maker wfnames))
  '(warning-suppress-log-types '((evil-collection))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
