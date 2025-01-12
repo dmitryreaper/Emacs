@@ -4,8 +4,8 @@
 
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-						 ("org" . "https://orgmode.org/elpa/")
-						 ("elpa" . "https://elpa.gnu.org/packages/")))
+			 ("org" . "https://orgmode.org/elpa/")
+			 ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
@@ -19,7 +19,7 @@
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
-(tooltip-mode -1) 
+(tooltip-mode -1)
 (set-fringe-mode 10)
 (column-number-mode)
 (global-display-line-numbers-mode t)
@@ -53,7 +53,8 @@
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 ;;font
-(set-face-attribute 'default nil :font "Hack Nerd Font-11")
+;;(set-face-attribute 'default nil :font "Iosevka Nerd Font 12")
+(set-face-attribute 'default nil :font "terminus-12")
 
 ;;set "gnu" style for c
 (setq c-deafault-style "linux"
@@ -70,12 +71,11 @@
 (setq org-src-fontify-natively 't)
 (setq org-startup-with-inline-images t)
 
-;; Включить плавную прокрутку
+;; Scroll
 (setq scroll-step 1)
 (setq scroll-conservatively 10000)
 (setq auto-window-vscroll nil)
-
-;; Дополнительно: более плавная прокрутка с мышью
+;; Scroll Mouse
 (pixel-scroll-precision-mode t)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -105,7 +105,6 @@
     (dolist (pair key-remap)
       (define-key key-translation-map (kbd (car pair)) (kbd (cdr pair))))))
 
-;; Активируем настройки
 (setup-ru-layout-keys)
 
 (global-set-key (kbd "C-M-p") 'windmove-up)
@@ -154,6 +153,11 @@
   :config
   (load-theme 'gruber-darker t))
 
+(use-package doom-modeline
+  :ensure t
+  :config
+  (doom-modeline-mode))
+
 ;; Company
 (use-package company
   :ensure t
@@ -200,7 +204,6 @@
   (c++-mode . lsp) 
   (java-mode . lsp)
   (c-mode . lsp)
-  (csharp-mode . lsp)
   (js-mode . lsp))
 
 (use-package lsp-ui
@@ -231,11 +234,10 @@
   :ensure t
   :config
   (dashboard-setup-startup-hook)
-  ;;(setq dashboard-startup-banner "/home/dima/Pictures/demon.png") ; Логотип Emacs
-  (setq dashboard-center-content t)         ; Центрирование содержимого
-  (setq dashboard-items '((recents  . 5)    ; Последние файлы
-                          (projects . 5)    ; Последние проекты
-                          (agenda   . 5))) ; События из Org Mode
+  (setq dashboard-center-content t)    
+  (setq dashboard-items '((recents  . 5)
+                          (projects . 5)
+                          (agenda   . 5)))
   (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -245,10 +247,7 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(package-selected-packages
-   '(annalist company counsel dashboard doom-modeline forge goto-chg
-			  gruber-darker-theme helm-core ivy-prescient ivy-rich llm
-			  lsp-java lsp-ui org-bullets org-pdftools org-present
-			  queue shell-maker wfnames))
+   '(pdf-tools annalist company counsel dashboard doom-modeline forge goto-chg gruber-darker-theme helm-core ivy-prescient ivy-rich llm lsp-java lsp-ui org-bullets org-pdftools org-present queue shell-maker wfnames))
  '(warning-suppress-log-types '((evil-collection))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
