@@ -1,11 +1,10 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;OPTIONAL SETTING;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (require 'package)
 (setq package-archives '(("melpa" . "https://melpa.org/packages/")
-			 ("org" . "https://orgmode.org/elpa/")
-			 ("elpa" . "https://elpa.gnu.org/packages/")))
+						 ("org" . "https://orgmode.org/elpa/")
+						 ("elpa" . "https://elpa.gnu.org/packages/")))
 (package-initialize)
 (unless (package-installed-p 'use-package)
   (package-install 'use-package))
@@ -16,6 +15,7 @@
 ;;BASIC UI CONFIGURATION
 (setq inhibit-startup-message t)
 (setq initial-buffer-choice nil)
+
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
@@ -54,7 +54,24 @@
 
 ;;font
 ;;(set-face-attribute 'default nil :font "Iosevka Nerd Font 12")
-(set-face-attribute 'default nil :font "terminus-12")
+(set-face-attribute 'default nil :font "Hack Nerd Font-11")
+
+;;daemon fonts
+(defun efs/set-font-faces ()
+  (message "Setting faces!")
+  (set-face-attribute 'default nil :font "Hack Nerd Font-11")
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "Hack Nerd Font-11")
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Hack Nerd Font-11"))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+				(dashboard-open)
+                (with-selected-frame frame
+                  (efs/set-font-faces))))
+  (efs/set-font-faces))
 
 ;;set "gnu" style for c
 (setq c-deafault-style "linux"
@@ -234,18 +251,30 @@
   :ensure t
   :config
   (dashboard-setup-startup-hook)
-  (setq dashboard-center-content t)    
-  (setq dashboard-items '((recents  . 5)
-                          (projects . 5)
-                          (agenda   . 5)))
+  (setq dashboard-center-content t)
+  (setq dashboard-items '((recents  . 10)))
+  ;;(projects . 5)
+  ;;(agenda   . 5)))
   (setq dashboard-banner-logo-title "Welcome to Emacs!"))
 
+;; pdf-tools
+(use-package pdf-tools
+  :ensure t
+  :config
+  (add-hook 'find-file-hook
+			(lambda ()
+              (when (string-match-p "\\.pdf$" buffer-file-name)
+				(pdf-tools-install)))))
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ ;;'(initial-buffer-choice "~/")
+ '(initial-buffer-choice (lambda () (get-buffer "*dashboard*")))
  '(package-selected-packages
    '(pdf-tools annalist company counsel dashboard doom-modeline forge goto-chg gruber-darker-theme helm-core ivy-prescient ivy-rich llm lsp-java lsp-ui org-bullets org-pdftools org-present queue shell-maker wfnames))
  '(warning-suppress-log-types '((evil-collection))))
@@ -254,4 +283,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+)
